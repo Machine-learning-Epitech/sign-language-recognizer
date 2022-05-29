@@ -10,7 +10,7 @@ batch_size = 32
 img_height = 200
 img_width = 200
 
-dataset_url = os.path.abspath('./filtered_images300/filtered_images')
+dataset_url = os.path.abspath('./filtered_images3000/filtered_images')
 # dataset_url = os.path.abspath('./asl_alphabet_train/asl_alphabet_train')
 print(dataset_url)
 data_dir = pathlib.Path(dataset_url)
@@ -26,6 +26,22 @@ train_ds = tf.keras.utils.image_dataset_from_directory(
   data_dir,
   validation_split=0.2,
   subset="training",
+  seed=123,
+  image_size=(img_height, img_width),
+  batch_size=batch_size)
+
+train_ds2 = tf.keras.utils.image_dataset_from_directory(
+  "filtered_images400/filtered_images",
+  validation_split=0.2,
+  subset="training",
+  seed=123,
+  image_size=(img_height, img_width),
+  batch_size=batch_size)
+
+val_ds2 = tf.keras.utils.image_dataset_from_directory(
+  "filtered_images400/filtered_images",
+  validation_split=0.2,
+  subset="validation",
   seed=123,
   image_size=(img_height, img_width),
   batch_size=batch_size)
@@ -71,9 +87,15 @@ val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
 
 model = model_lib.create_model()
 
+# model.fit(
+#   train_ds,
+#   validation_data=val_ds,
+#   epochs=3
+# )
+
 model.fit(
-  train_ds,
-  validation_data=val_ds,
+  train_ds2,
+  validation_data=val_ds2,
   epochs=3
 )
 
