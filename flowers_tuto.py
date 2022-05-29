@@ -3,27 +3,26 @@ import os
 import PIL
 import PIL.Image
 import tensorflow as tf
+import tensorflow_datasets as tfds
+
+print(tf.__version__)
+
 import pathlib
-import model_lib
-
-batch_size = 32
-img_height = 200
-img_width = 200
-
-# dataset_url = os.path.abspath('./filtered_images300/filtered_images')
-dataset_url = os.path.abspath('./filtered_images10/filtered_images')
-# dataset_url = os.path.abspath('./filtered_images_light')
-# dataset_url = os.path.abspath('./one_class')
-# dataset_url = os.path.abspath('./asl_alphabet_train/asl_alphabet_train')
-print(dataset_url)
-data_dir = pathlib.Path(dataset_url)
+dataset_url = "https://storage.googleapis.com/download.tensorflow.org/example_images/flower_photos.tgz"
+data_dir = tf.keras.utils.get_file(origin=dataset_url,
+                                   fname='flower_photos',
+                                   untar=True)
+data_dir = pathlib.Path(data_dir)
 
 image_count = len(list(data_dir.glob('*/*.jpg')))
 print(image_count)
 
-if image_count == 0:
-    print('empty dataset')
-    os._exit(1)
+roses = list(data_dir.glob('roses/*'))
+PIL.Image.open(str(roses[0]))
+
+batch_size = 32
+img_height = 180
+img_width = 180
 
 train_ds = tf.keras.utils.image_dataset_from_directory(
   data_dir,
@@ -44,7 +43,6 @@ val_ds = tf.keras.utils.image_dataset_from_directory(
 class_names = train_ds.class_names
 print(class_names)
 
-'''
 import matplotlib.pyplot as plt
 
 plt.figure(figsize=(10, 10))
@@ -54,22 +52,44 @@ for images, labels in train_ds.take(1):
     plt.imshow(images[i].numpy().astype("uint8"))
     plt.title(class_names[labels[i]])
     plt.axis("off")
-    print(class_names[labels[i]])
-'''
+
+for image_batch, labels_batch in train_ds:
+  print(image_batch.shape)
+  print(labels_batch.shape)
+  break
 
 normalization_layer = tf.keras.layers.Rescaling(1./255)
+
 normalized_ds = train_ds.map(lambda x, y: (normalization_layer(x), y))
 image_batch, labels_batch = next(iter(normalized_ds))
-# first_image = image_batch[0]
+first_image = image_batch[0]
 # Notice the pixel values are now in `[0,1]`.
-# print(np.min(first_image), np.max(first_image))
+print(np.min(first_image), np.max(first_image))
 
 AUTOTUNE = tf.data.AUTOTUNE
 
 train_ds = train_ds.cache().prefetch(buffer_size=AUTOTUNE)
 val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
 
-model = model_lib.create_model()
+num_classes = 5
+
+model = tf.keras.Sequential([
+  tf.keras.layers.Rescaling(1./255),
+  tf.keras.layers.Conv2D(32, 3, activation='relu'),
+  tf.keras.layers.MaxPooling2D(),
+  tf.keras.layers.Conv2D(32, 3, activation='relu'),
+  tf.keras.layers.MaxPooling2D(),
+  tf.keras.layers.Conv2D(32, 3, activation='relu'),
+  tf.keras.layers.MaxPooling2D(),
+  tf.keras.layers.Flatten(),
+  tf.keras.layers.Dense(128, activation='relu'),
+  tf.keras.layers.Dense(num_classes)
+])
+
+model.compile(
+  optimizer='adam',
+  loss=tf.losses.SparseCategoricalCrossentropy(from_logits=True),
+  metrics=['accuracy'])
 
 model.fit(
   train_ds,
@@ -77,14 +97,11 @@ model.fit(
   epochs=3
 )
 
-model_lib.save_model(model)
-
-'''
 list_ds = tf.data.Dataset.list_files(str(data_dir/'*/*'), shuffle=False)
 list_ds = list_ds.shuffle(image_count, reshuffle_each_iteration=False)
 
-# for f in list_ds.take(5):
-#  print(f.numpy())
+for f in list_ds.take(5):
+  print(f.numpy())
 
 class_names = np.array(sorted([item.name for item in data_dir.glob('*') if item.name != "LICENSE.txt"]))
 print(class_names)
@@ -117,7 +134,6 @@ def process_path(file_path):
   img = decode_img(img)
   return img, label
 
-# Set `num_parallel_calls` so multiple images are loaded/processed in parallel.
 train_ds = train_ds.map(process_path, num_parallel_calls=AUTOTUNE)
 val_ds = val_ds.map(process_path, num_parallel_calls=AUTOTUNE)
 
@@ -150,4 +166,40 @@ model.fit(
   validation_data=val_ds,
   epochs=3
 )
-'''
+
+(train_ds, val_ds, test_ds), metadata = tfds.load(
+    'tf_flowers',
+    split=['train[:80%]', 'train[80%:90%]', 'train[90%:]'],
+    with_info=True,
+    as_supervised=True,
+)
+
+num_classes = metadata.features['label'].num_classes
+print(num_classes)
+
+get_label_name = metadata.features['label'].int2str
+
+image, label = next(iter(train_ds))
+_ = plt.imshow(image)
+_ = plt.title(get_label_name(label))
+
+train_ds = configure_for_performance(train_ds)
+val_ds = configure_for_performance(val_ds)
+test_ds = configure_for_performance(test_ds)
+
+sunflower_url = "https://storage.googleapis.com/download.tensorflow.org/example_images/592px-Red_sunflower.jpg"
+sunflower_path = tf.keras.utils.get_file('Red_sunflower', origin=sunflower_url)
+
+img = tf.keras.utils.load_img(
+    sunflower_path, target_size=(img_height, img_width)
+)
+img_array = tf.keras.utils.img_to_array(img)
+img_array = tf.expand_dims(img_array, 0) # Create a batch
+
+predictions = model.predict(img_array)
+score = tf.nn.softmax(predictions[0])
+
+print(
+    "This image most likely belongs to {} with a {:.2f} percent confidence."
+    .format(class_names[np.argmax(score)], 100 * np.max(score))
+)
