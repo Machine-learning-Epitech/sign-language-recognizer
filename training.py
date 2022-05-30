@@ -10,7 +10,7 @@ batch_size = 32
 img_height = 200
 img_width = 200
 
-dataset_url = os.path.abspath('./filtered_images3000/filtered_images')
+dataset_url = os.path.abspath('dataset/filtered_images100/filtered_images')
 # dataset_url = os.path.abspath('./asl_alphabet_train/asl_alphabet_train')
 print(dataset_url)
 data_dir = pathlib.Path(dataset_url)
@@ -30,22 +30,6 @@ train_ds = tf.keras.utils.image_dataset_from_directory(
   image_size=(img_height, img_width),
   batch_size=batch_size)
 
-train_ds2 = tf.keras.utils.image_dataset_from_directory(
-  "filtered_images400/filtered_images",
-  validation_split=0.2,
-  subset="training",
-  seed=123,
-  image_size=(img_height, img_width),
-  batch_size=batch_size)
-
-val_ds2 = tf.keras.utils.image_dataset_from_directory(
-  "filtered_images400/filtered_images",
-  validation_split=0.2,
-  subset="validation",
-  seed=123,
-  image_size=(img_height, img_width),
-  batch_size=batch_size)
-
 val_ds = tf.keras.utils.image_dataset_from_directory(
   data_dir,
   validation_split=0.2,
@@ -57,26 +41,9 @@ val_ds = tf.keras.utils.image_dataset_from_directory(
 class_names = train_ds.class_names
 print(class_names)
 
-'''
-import matplotlib.pyplot as plt
-
-plt.figure(figsize=(10, 10))
-for images, labels in train_ds.take(1):
-  for i in range(9):
-    ax = plt.subplot(3, 3, i + 1)
-    plt.imshow(images[i].numpy().astype("uint8"))
-    plt.title(class_names[labels[i]])
-    plt.axis("off")
-    print(class_names[labels[i]])
-'''
-
 normalization_layer = tf.keras.layers.Rescaling(1./255)
 normalized_ds = train_ds.map(lambda x, y: (normalization_layer(x), y))
 image_batch, labels_batch = next(iter(normalized_ds))
-# first_image = image_batch[0]
-# Notice the pixel values are now in `[0,1]`.
-# print(np.min(first_image), np.max(first_image))
-
 AUTOTUNE = tf.data.AUTOTUNE
 
 train_ds = train_ds.cache().prefetch(buffer_size=AUTOTUNE)
@@ -84,15 +51,9 @@ val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
 
 model = model_lib.create_model()
 
-# model.fit(
-#   train_ds,
-#   validation_data=val_ds,
-#   epochs=3
-# )
-
 model.fit(
-  train_ds2,
-  validation_data=val_ds2,
+  train_ds,
+  validation_data=val_ds,
   epochs=3
 )
 
