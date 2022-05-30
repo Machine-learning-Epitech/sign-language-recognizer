@@ -14,7 +14,7 @@ import h5py
 #--------------------
 images_per_class = 80
 fixed_size       = tuple((500, 500))
-train_path       = "dataset/filtered_images100/filtered_images"
+train_path       = "dataset/filtered_images300/filtered_images"
 h5_data          = 'output/data.h5'
 h5_labels        = 'output/labels.h5'
 bins             = 8
@@ -64,7 +64,7 @@ for training_name in train_labels:
     for x in os.listdir(train_path + '/' + training_name):
         # get the image file name
         file = train_path + '/' + training_name + '/' + x
-        print(file)
+        # print(file)
 
         # read the image and resize it to a fixed-size
         image = cv2.imread(file)
@@ -102,6 +102,8 @@ print("[STATUS] feature vector normalized...")
 print("[STATUS] target labels: {}".format(target))
 print("[STATUS] target labels shape: {}".format(target.shape))
 
+if not os.path.isdir('output'):
+    os.mkdir('output')
 h5f_data = h5py.File(h5_data, 'w')
 h5f_data.create_dataset('dataset_1', data=np.array(rescaled_features))
 
