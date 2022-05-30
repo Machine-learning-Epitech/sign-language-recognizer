@@ -39,9 +39,9 @@ classes = {
     "23": ["X", "x"],
     "24": ["Y", "y"],
     "25": ["Z", "z"],
-    "26": ["Nothing", "nothing"],
-    "27": ["Space", "space"],
-    "28": ["Del", "del"]
+    "26": ["nothing", "nothing"],
+    "27": ["space", "space"],
+    "28": ["del", "del"]
 }
 
 def decode_predictions(preds, top=28):

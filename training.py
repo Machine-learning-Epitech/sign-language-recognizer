@@ -10,7 +10,7 @@ batch_size = 32
 img_height = 200
 img_width = 200
 
-dataset_url = os.path.abspath('dataset/filtered_images100/filtered_images')
+dataset_url = os.path.abspath('dataset/filtered_images3000/filtered_images')
 # dataset_url = os.path.abspath('./asl_alphabet_train/asl_alphabet_train')
 print(dataset_url)
 data_dir = pathlib.Path(dataset_url)

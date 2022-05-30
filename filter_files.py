@@ -43,8 +43,8 @@ def filter_folders():
     if not os.path.exists(target_folder):
         os.makedirs(target_folder)
     for folder in os.listdir(source):
-        if len(folder) == 1 and folder.isalpha():
-            count = count + filter_letter_folder(letter=folder, max_number_of_files_per_letter=max_number_of_files_per_letter, source=source)
+        # if len(folder) == 1 and folder.isalpha():
+        count = count + filter_letter_folder(letter=folder, max_number_of_files_per_letter=max_number_of_files_per_letter, source=source)
     print("Total files in all folders: " + str(count))
 
 filter_folders()

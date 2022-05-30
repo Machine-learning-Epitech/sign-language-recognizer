@@ -1,0 +1,15 @@
+[STATUS] features shape: (2600, 532)
+[STATUS] labels shape: (2600,)
+[STATUS] training started...
+[STATUS] splitted train and test data...
+Train data  : (2340, 532)
+Test data   : (260, 532)
+Train labels: (2340,)
+Test labels : (260,)
+LR: 0.717949 (0.033268)
+LDA: 0.751282 (0.034970)
+KNN: 0.750000 (0.030594)
+CART: 0.585043 (0.034372)
+RF: 0.882906 (0.012561)
+NB: 0.337607 (0.032151)
+SVM: 0.589316 (0.029450)
