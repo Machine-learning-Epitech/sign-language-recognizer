@@ -85,4 +85,4 @@ for class_name in class_names:
       result += 1
 
 print("Found " + str(result) + "/" + str(len(class_names)) + " letters")
-print("{:.2f}".format(result / len(class_names)) + "%")
+print("{:.2f}".format(result / len(class_names) * 100) + "%")

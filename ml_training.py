@@ -27,7 +27,7 @@ warnings.filterwarnings('ignore')
 num_trees = 100
 test_size = 0.10
 seed      = 9
-train_path = "dataset/filtered_images100/filtered_images"
+train_path = "dataset/filtered_images300/filtered_images"
 test_path  = "asl_alphabet_test"
 h5_data    = 'output/data.h5'
 h5_labels  = 'output/labels.h5'
@@ -95,58 +95,3 @@ for name, model in models:
     names.append(name)
     msg = "%s: %f (%f)" % (name, cv_results.mean(), cv_results.std())
     print(msg)
-
-# boxplot algorithm comparison
-fig = pyplot.figure()
-fig.suptitle('Machine Learning algorithm comparison')
-ax = fig.add_subplot(111)
-pyplot.boxplot(results)
-ax.set_xticklabels(names)
-pyplot.show()
-
-# #-----------------------------------
-# # TESTING OUR MODEL
-# #-----------------------------------
-
-# # to visualize results
-# import matplotlib.pyplot as plt
-
-# # create the model - Random Forests
-# clf  = RandomForestClassifier(n_estimators=num_trees, random_state=seed)
-
-# # fit the training data to the model
-# clf.fit(trainDataGlobal, trainLabelsGlobal)
-
-# # loop through the test images
-# for file in glob.glob(test_path + "/*.jpg"):
-#     # read the image
-#     image = cv2.imread(file)
-
-#     # resize the image
-#     image = cv2.resize(image, fixed_size)
-
-#     ####################################
-#     # Global Feature extraction
-#     ####################################
-#     fv_hu_moments = fd_hu_moments(image)
-#     fv_haralick   = fd_haralick(image)
-#     fv_histogram  = fd_histogram(image)
-
-#     ###################################
-#     # Concatenate global features
-#     ###################################
-#     global_feature = np.hstack([fv_histogram, fv_haralick, fv_hu_moments])
-
-#     # scale features in the range (0-1)
-#     scaler = MinMaxScaler(feature_range=(0, 1))
-#     rescaled_feature = scaler.fit_transform(global_feature)
-
-#     # predict label of test image
-#     prediction = clf.predict(rescaled_feature.reshape(1,-1))[0]
-
-#     # show predicted label on image
-#     cv2.putText(image, train_labels[prediction], (20,30), cv2.FONT_HERSHEY_SIMPLEX, 1.0, (0,255,255), 3)
-
-#     # display the output image
-#     plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
-#     plt.show()
