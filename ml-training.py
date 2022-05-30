@@ -73,12 +73,11 @@ for training_name in train_labels:
         ####################################
         # Global Feature extraction
         ####################################
-        # fv_hu_moments = fd_hu_moments(image)
-        # fv_haralick   = fd_haralick(image)
-        # fv_histogram  = fd_histogram(image)
+        fv_hu_moments = fd_hu_moments(image)
+        fv_haralick   = fd_haralick(image)
+        fv_histogram  = fd_histogram(image)
         
-        # global_feature = np
-        global_features
+        global_feature = np.hstack([fv_histogram, fv_haralick, fv_hu_moments])
 
         labels.append(current_label)
         global_features.append(global_feature)
