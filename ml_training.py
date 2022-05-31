@@ -18,6 +18,8 @@ from sklearn.neighbors import KNeighborsClassifier
 from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
 from sklearn.naive_bayes import GaussianNB
 from sklearn.svm import SVC
+from sklearn.metrics import confusion_matrix
+import pandas as pd
 
 warnings.filterwarnings('ignore')
 
@@ -86,8 +88,7 @@ print("Train data  : {}".format(trainDataGlobal.shape))
 print("Test data   : {}".format(testDataGlobal.shape))
 print("Train labels: {}".format(trainLabelsGlobal.shape))
 print("Test labels : {}".format(testLabelsGlobal.shape))
-
-# 10-fold cross validation
+# # 10-fold cross validation
 for name, model in models:
     kfold = KFold(n_splits=10)
     cv_results = cross_val_score(model, trainDataGlobal, trainLabelsGlobal, cv=kfold, scoring=scoring)
@@ -95,3 +96,9 @@ for name, model in models:
     names.append(name)
     msg = "%s: %f (%f)" % (name, cv_results.mean(), cv_results.std())
     print(msg)
+fig = pyplot.figure()
+fig.suptitle('Machine Learning algorithm comparison')
+ax = fig.add_subplot(111)
+pyplot.boxplot(results)
+ax.set_xticklabels(names)
+pyplot.show()

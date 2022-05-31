@@ -2,6 +2,4 @@ __pycache__
 .git
 asl_alphabet_train
 filtered_images*
-flower_photos
-flowers_validation
-dataset
+dataset/*

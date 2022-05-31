@@ -5,6 +5,8 @@ import PIL.Image
 import tensorflow as tf
 import pathlib
 import model_lib
+import matplotlib.pyplot as plt
+from mpl_toolkits.axes_grid1 import make_axes_locatable 
 
 batch_size = 32
 img_height = 200
@@ -50,14 +52,36 @@ train_ds = train_ds.cache().prefetch(buffer_size=AUTOTUNE)
 val_ds = val_ds.cache().prefetch(buffer_size=AUTOTUNE)
 
 model = model_lib.create_model()
-
-model.fit(
+epochs = 3
+history = model.fit(
   train_ds,
   validation_data=val_ds,
-  epochs=3
+  epochs=epochs
 )
 
 model_lib.save_model(model)
+
+acc = history.history['accuracy']
+val_acc = history.history['val_accuracy']
+
+loss = history.history['loss']
+val_loss = history.history['val_loss']
+
+epochs_range = range(epochs)
+
+plt.figure(figsize=(8, 8))
+plt.subplot(1, 2, 1)
+plt.plot(epochs_range, acc, label='Training Accuracy')
+plt.plot(epochs_range, val_acc, label='Validation Accuracy')
+plt.legend(loc='lower right')
+plt.title('Training and Validation Accuracy')
+
+plt.subplot(1, 2, 2)
+plt.plot(epochs_range, loss, label='Training Loss')
+plt.plot(epochs_range, val_loss, label='Validation Loss')
+plt.legend(loc='upper right')
+plt.title('Training and Validation Loss')
+plt.show()
 
 '''
 list_ds = tf.data.Dataset.list_files(str(data_dir/'*/*'), shuffle=False)
@@ -131,3 +155,5 @@ model.fit(
   epochs=3
 )
 '''
+
+
